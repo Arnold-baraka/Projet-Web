@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Manager</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+
+    <h1 class="mainTitle">Patient Manager</h1>
+
+    <h2>Create a Patient</h2>
+    <form id="createPatientForm">
+        <div class="input-container">
+            <label for="c_lastName">Last Name:</label>
+            <input type="text" id="c_lastName" required>
+        </div>
+        <div class="input-container">
+            <label for="c_firstName">First Name:</label>
+            <input type="text" id="c_firstName" required>
+        </div>
+        <div class="input-container">
+            <label for="c_birthdate">Birthdate:</label>
+            <input type="date" id="c_birthdate" required>
+        </div>
+        <div class="input-container">
+            <label for="c_niss">NISS:</label>
+            <input type="text" id="c_niss" required>
+        </div>
+        <div class="input-container">
+            <label for="c_street">Street:</label>
+            <input type="text" id="c_street" required>
+        </div>
+        <div class="input-container">
+            <label for="c_number">Number:</label>
+            <input type="text" id="c_number" required>
+        </div>
+        <div class="input-container">
+            <label for="c_city">City:</label>
+            <input type="text" id="c_city" required>
+        </div>
+        <div class="input-container">
+            <label for="c_zipCode">Postal Code:</label>
+            <input type="text" id="c_zipCode" required>
+        </div>
+        <div class="input-container">
+            <label for="c_country">Country:</label>
+            <input type="text" id="c_country" required>
+        </div>
+        <div class="input-container">
+            <label for="c_refDoctor">Referring Doctor:</label>
+            <input type="text" id="c_refDoctor" required>
+        </div>
+        <button type="submit">Create Patient</button>
+    </form>
+
+    <h2>Get a Patient</h2>
+    <form id="getPatientForm">
+        <input type="text" id="patientId" placeholder="Patient ID" required>
+        <button type="submit">Get Patient Info</button>
+    </form>
+
+    <h2>Update Patient</h2>
+    <form id="updatePatientForm">
+        <input type="text" id="lastName" placeholder="Last Name">
+        <input type="text" id="firstName" placeholder="First Name">
+        <input type="text" id="id" placeholder="ID" required>
+        <input type="date" id="birthdate">
+        <input type="text" id="niss" placeholder="NISS">
+        <input type="text" id="street" placeholder="Street">
+        <input type="text" id="number" placeholder="Number">
+        <input type="text" id="city" placeholder="City">
+        <input type="text" id="zipCode" placeholder="Postal Code">
+        <input type="text" id="country" placeholder="Country">
+        <input type="text" id="refDoctor" placeholder="Referring Doctor">
+        <button type="submit">Update Patient Info</button>
+    </form>
+
+    <script src="callAPI.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Handle GET Patient Info
+            document.getElementById("getPatientForm").addEventListener("submit", async function (event) {
+                event.preventDefault(); // Prevent form submission from refreshing the page
+        
+                const patientId = document.getElementById("patientId").value;
+                if (!patientId) {
+                    alert("Please enter a valid Patient ID");
+                    return;
+                }
+        
+                try {
+                    // Replace this URL with your actual backend API endpoint
+                    const response = await fetch(`http://localhost:3000/patients/${patientId}`);
+        
+                    if (!response.ok) {
+                        throw new Error("Patient not found");
+                    }
+        
+                    const patient = await response.json();
+        
+                    // Populate the update form with patient details
+                    document.getElementById("lastName").value = patient.lastName || "";
+                    document.getElementById("firstName").value = patient.firstName || "";
+                    document.getElementById("id").value = patient.id || "";
+                    document.getElementById("birthdate").value = patient.birthdate || "";
+                    document.getElementById("niss").value = patient.niss || "";
+                    document.getElementById("street").value = patient.address?.street || "";
+                    document.getElementById("number").value = patient.address?.number || "";
+                    document.getElementById("city").value = patient.address?.city || "";
+                    document.getElementById("zipCode").value = patient.address?.zipCode || "";
+                    document.getElementById("country").value = patient.address?.country || "";
+                    document.getElementById("refDoctor").value = patient.refDoctor || "";
+        
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+        });
+        </script>
+
+</body>
+</html>

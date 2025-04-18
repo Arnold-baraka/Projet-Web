@@ -1,0 +1,61 @@
+# Get all available products
+GET http://localhost:3000/products HTTP/1.1
+
+###
+
+# Get basic product info
+GET http://localhost:3000/products/basic/1 HTTP/1.1
+
+###
+
+# Get detailed product info
+GET http://localhost:3000/products/detail/1 HTTP/1.1
+
+###
+
+# ADMIN: Get all products (including unavailable)
+GET http://localhost:3000/products/admin HTTP/1.1
+
+###
+
+# ADMIN: Get basic product info
+GET http://localhost:3000/products/admin/basic/1 HTTP/1.1
+
+###
+
+# ADMIN: Get detailed product info
+GET http://localhost:3000/products/admin/detail/1 HTTP/1.1
+
+###
+
+# ADMIN: Add new product
+POST http://localhost:3000/products/admin HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "New Product",
+  "description": "A brand new product",
+  "price": 99.99,
+  "categoryId": 1,
+  "status": "AVAILABLE"
+}
+
+###
+
+# ADMIN: Update product
+PUT http://localhost:3000/products/admin/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Updated Product",
+  "description": "An updated product description",
+  "price": 109.99,
+  "categoryId": 1,
+  "status": "AVAILABLE"
+}
+
+###
+
+# ADMIN: Set product as unavailable
+DELETE http://localhost:3000/products/admin/1 HTTP/1.1

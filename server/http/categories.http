@@ -1,0 +1,52 @@
+# Get all available categories
+GET http://localhost:3000/categories HTTP/1.1
+
+###
+
+# Get basic category info
+GET http://localhost:3000/categories/basic/1 HTTP/1.1
+
+###
+
+# ADMIN: Get all categories (including unavailable)
+GET http://localhost:3000/categories/admin HTTP/1.1
+
+###
+
+# ADMIN: Get basic category info
+GET http://localhost:3000/categories/admin/basic/1 HTTP/1.1
+
+###
+
+# ADMIN: Get detailed category info
+GET http://localhost:3000/categories/admin/detail/1 HTTP/1.1
+
+###
+
+# ADMIN: Add new category
+POST http://localhost:3000/categories/admin HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "New Category",
+  "description": "A brand new category",
+  "status": "AVAILABLE"
+}
+
+###
+
+# ADMIN: Update category
+PUT http://localhost:3000/categories/admin/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Updated Category",
+  "description": "An updated category description",
+  "status": "AVAILABLE"
+}
+
+###
+
+# ADMIN: Set category as unavailable
+DELETE http://localhost:3000/categories/admin/1 HTTP/1.1
