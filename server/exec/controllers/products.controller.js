@@ -8,7 +8,14 @@ exports.productsController = (0, express_1.Router)();
 exports.products = [
     { id: 1, name: "Comfy Chair", description: "A very comfortable chair", price: 199.99, categoryId: 1, status: 'AVAILABLE' },
     { id: 2, name: "Wooden Table", description: "Solid oak dining table", price: 499.99, categoryId: 1, status: 'AVAILABLE' },
-    { id: 3, name: "Modern Lamp", description: "Sleek designer lamp", price: 89.99, categoryId: 2, status: 'AVAILABLE' }
+    { id: 3, name: "Modern Lamp", description: "Sleek designer lamp", price: 89.99, categoryId: 2, status: 'AVAILABLE' },
+    { id: 4, name: "Leather Sofa", description: "Luxurious leather sofa for your living room", price: 899.99, categoryId: 1, status: 'AVAILABLE' },
+    { id: 5, name: "Bookshelf", description: "Spacious wooden bookshelf", price: 149.99, categoryId: 1, status: 'AVAILABLE' },
+    { id: 6, name: "Bed Frame", description: "Modern king-size bed frame", price: 599.99, categoryId: 1, status: 'AVAILABLE' },
+    { id: 7, name: "Desk Lamp", description: "LED desk lamp with adjustable brightness", price: 39.99, categoryId: 2, status: 'AVAILABLE' },
+    { id: 8, name: "Nightstand", description: "Two-drawer wooden nightstand", price: 89.99, categoryId: 1, status: 'AVAILABLE' },
+    { id: 9, name: "Rug", description: "Soft area rug with modern pattern", price: 129.99, categoryId: 3, status: 'AVAILABLE' },
+    { id: 10, name: "Curtains", description: "Light-blocking window curtains", price: 59.99, categoryId: 3, status: 'AVAILABLE' }
 ];
 // Get all products (for any user)
 exports.productsController.get("/", (req, res) => {
