@@ -1,1 +1,10 @@
 .DS_Store
+# Ignore system and user directories
+.Trash/
+Music/
+Pictures/
+Library/
+Movies/
+Downloads/
+Applications/
+Desktop/
