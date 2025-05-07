@@ -1,183 +1,183 @@
+/**
+ * This file contains all the logic for the products controller
+ */
 import { Request, Response, Router } from "express";
 import { Product, ProductDTO, FullProductDTO } from "../models/product.model";
 import { isNumber, isProduct } from "../utils/guards";
+import { LoggerService } from "../services/logger.service";
+import { 
+  getAllProducts, getAvailableProducts, getProductById, insertProduct, updateProduct, 
+  setProductUnavailable 
+} from "../services/products.service";
 
 export const productsController = Router();
 
-// Mock data
-export let products: Product[] = [
-  { id: 1, name: "Comfy Chair", description: "A very comfortable chair", price: 199.99, categoryId: 1, status: 'AVAILABLE' },
-  { id: 2, name: "Wooden Table", description: "Solid oak dining table", price: 499.99, categoryId: 1, status: 'AVAILABLE' },
-  { id: 3, name: "Modern Lamp", description: "Sleek designer lamp", price: 89.99, categoryId: 2, status: 'AVAILABLE' },
-  { id: 4, name: "Leather Sofa", description: "Luxurious leather sofa for your living room", price: 899.99, categoryId: 1, status: 'AVAILABLE' },
-  { id: 5, name: "Bookshelf", description: "Spacious wooden bookshelf", price: 149.99, categoryId: 1, status: 'AVAILABLE' },
-  { id: 6, name: "Bed Frame", description: "Modern king-size bed frame", price: 599.99, categoryId: 1, status: 'AVAILABLE' },
-  { id: 7, name: "Desk Lamp", description: "LED desk lamp with adjustable brightness", price: 39.99, categoryId: 2, status: 'AVAILABLE' },
-  { id: 8, name: "Nightstand", description: "Two-drawer wooden nightstand", price: 89.99, categoryId: 1, status: 'AVAILABLE' },
-  { id: 9, name: "Rug", description: "Soft area rug with modern pattern", price: 129.99, categoryId: 3, status: 'AVAILABLE' },
-  { id: 10, name: "Curtains", description: "Light-blocking window curtains", price: 59.99, categoryId: 3, status: 'AVAILABLE' }
-];
-
-// Get all products (for any user)
+// Get all available products (for any user)
 productsController.get("/", (req: Request, res: Response) => {
-  console.log("[GET] /products/");
-  const productDTOs: ProductDTO[] = products
-    .filter(p => p.status === 'AVAILABLE')
-    .map(p => ({ id: p.id, name: p.name, price: p.price }));
-  res.json(productDTOs).status(200);
+  LoggerService.info("[GET] /products/");
+  try {
+    const products = getAvailableProducts();
+    const productDTOs: ProductDTO[] = products.map(p => ({
+      id: p.id!, // Non-null assertion since we know products from DB have ids
+      name: p.name,
+      price: p.price
+    }));
+    res.status(200).json(productDTOs);
+  } catch (error) {
+    LoggerService.error("Database error: " + error);
+    res.status(500).json({ error: 'Error while fetching available products.' });
+  }
 });
 
 // Get basic product info (for any user)
 productsController.get("/basic/:id", (req: Request, res: Response) => {
-  console.log("[GET] /products/basic/:id");
   const id = parseInt(req.params.id);
+  LoggerService.info(`[GET] /products/basic/${id}`);
   
   if (!isNumber(id)) {
+    LoggerService.error("ID must be a number");
     return res.status(400).send("ID must be a number");
   }
 
-  const product = products.find(p => p.id === id);
-  if (!product || product.status !== 'AVAILABLE') {
-    return res.status(404).send("Product not found");
-  }
+  try {
+    const product = getProductById(id);
+    if (!product || product.status !== 'AVAILABLE') {
+      return res.status(404).json({ error: "Product not found or unavailable" });
+    }
 
-  const productDTO: ProductDTO = {
-    id: product.id,
-    name: product.name,
-    price: product.price
-  };
-  res.status(200).json(productDTO);
+    const productDTO: ProductDTO = {
+      id: product.id!, // Non-null assertion since we know existing products have ids
+      name: product.name,
+      price: product.price
+    };
+    res.status(200).json(productDTO);
+  } catch (error) {
+    LoggerService.error("Database error: " + error);
+    res.status(500).json({ error: "Error while fetching product." });
+  }
 });
 
 // Get detailed product info (for any user)
 productsController.get("/detail/:id", (req: Request, res: Response) => {
-  console.log("[GET] /products/detail/:id");
   const id = parseInt(req.params.id);
+  LoggerService.info(`[GET] /products/detail/${id}`);
   
   if (!isNumber(id)) {
+    LoggerService.error("ID must be a number");
     return res.status(400).send("ID must be a number");
   }
 
-  const product = products.find(p => p.id === id);
-  if (!product || product.status !== 'AVAILABLE') {
-    return res.status(404).send("Product not found");
-  }
+  try {
+    const product = getProductById(id);
+    if (!product || product.status !== 'AVAILABLE') {
+      return res.status(404).json({ error: "Product not found or unavailable" });
+    }
 
-  const fullProductDTO: FullProductDTO = {
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    description: product.description,
-    categoryId: product.categoryId,
-    status: product.status
-  };
-  res.status(200).json(fullProductDTO);
+    const fullProductDTO: FullProductDTO = {
+      id: product.id!, // Non-null assertion since we know existing products have ids
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      categoryId: product.categoryId,
+      status: product.status
+    };
+    res.status(200).json(fullProductDTO);
+  } catch (error) {
+    LoggerService.error("Database error: " + error);
+    res.status(500).json({ error: "Error while fetching product details." });
+  }
 });
 
 // ADMIN ROUTES
 
 // Get all products (including unavailable - admin only)
 productsController.get("/admin", (req: Request, res: Response) => {
-  console.log("[GET] /products/admin");
-  // In a real app, check if user is admin
-  res.json(products).status(200);
-});
-
-// Get basic product info (admin only)
-productsController.get("/admin/basic/:id", (req: Request, res: Response) => {
-  console.log("[GET] /products/admin/basic/:id");
-  const id = parseInt(req.params.id);
-  
-  if (!isNumber(id)) {
-    return res.status(400).send("ID must be a number");
+  LoggerService.info("[GET] /products/admin");
+  try {
+    const products = getAllProducts();
+    res.status(200).json(products);
+  } catch (error) {
+    LoggerService.error("Database error: " + error);
+    res.status(500).json({ error: 'Error while fetching all products.' });
   }
-
-  const product = products.find(p => p.id === id);
-  if (!product) {
-    return res.status(404).send("Product not found");
-  }
-
-  const productDTO: ProductDTO = {
-    id: product.id,
-    name: product.name,
-    price: product.price
-  };
-  res.status(200).json(productDTO);
-});
-
-// Get detailed product info (admin only)
-productsController.get("/admin/detail/:id", (req: Request, res: Response) => {
-  console.log("[GET] /products/admin/detail/:id");
-  const id = parseInt(req.params.id);
-  
-  if (!isNumber(id)) {
-    return res.status(400).send("ID must be a number");
-  }
-
-  const product = products.find(p => p.id === id);
-  if (!product) {
-    return res.status(404).send("Product not found");
-  }
-
-  const fullProductDTO: FullProductDTO = {
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    description: product.description,
-    categoryId: product.categoryId,
-    status: product.status
-  };
-  res.status(200).json(fullProductDTO);
 });
 
 // Add new product (admin only)
 productsController.post("/admin", (req: Request, res: Response) => {
-  console.log("[POST] /products/admin");
-  const product: Product = req.body;
+  LoggerService.info("[POST] /products/admin");
   
-  if (!isProduct(product)) {
-    return res.status(400).send("Invalid product data");
-  }
+  try {
+    const newProduct = req.body;
+    
+    if (!newProduct || Object.keys(newProduct).length === 0) {
+      LoggerService.error("Invalid product data");
+      return res.status(400).send("Product data is required");
+    }
 
-  product.id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-  product.status = 'AVAILABLE';
-  products.push(product);
-  res.status(201).json(product);
+    if (!newProduct.name || !newProduct.price || !newProduct.categoryId) {
+      LoggerService.error("Missing required fields");
+      return res.status(400).send("Name, price and categoryId are required");
+    }
+    
+    const createdProduct = insertProduct({
+      ...newProduct,
+      status: 'AVAILABLE'
+    });
+    
+    LoggerService.info("Product created successfully");
+    res.status(201).json(createdProduct);
+  } catch (error) {
+    LoggerService.error("Database error: " + error);
+    res.status(500).json({ error: "Error while creating product." });
+  }
 });
 
 // Update product (admin only)
 productsController.put("/admin/:id", (req: Request, res: Response) => {
-  console.log("[PUT] /products/admin/:id");
   const id = parseInt(req.params.id);
-  const updatedProduct: Product = req.body;
+  LoggerService.info(`[PUT] /products/admin/${id}`);
   
-  if (!isNumber(id) || !isProduct(updatedProduct) || id !== updatedProduct.id) {
-    return res.status(400).send("Invalid data");
+  if (!isNumber(id)) {
+    LoggerService.error("ID must be a number");
+    return res.status(400).send("ID must be a number");
   }
 
-  const index = products.findIndex(p => p.id === id);
-  if (index === -1) {
-    return res.status(404).send("Product not found");
-  }
+  try {
+    const productUpdate = req.body;
+    
+    if (!isProduct(productUpdate)) {
+      LoggerService.error("Invalid product data");
+      return res.status(400).send("Invalid product data");
+    }
 
-  products[index] = updatedProduct;
-  res.status(200).json(updatedProduct);
+    if (id !== productUpdate.id) {
+      LoggerService.error("ID mismatch");
+      return res.status(400).send("ID in path doesn't match product ID");
+    }
+
+    const updatedProduct = updateProduct(productUpdate);
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    LoggerService.error("Database error: " + error);
+    res.status(500).json({ error: "Error while updating product." });
+  }
 });
 
 // Set product as unavailable (admin only)
 productsController.delete("/admin/:id", (req: Request, res: Response) => {
-  console.log("[DELETE] /products/admin/:id");
   const id = parseInt(req.params.id);
+  LoggerService.info(`[DELETE] /products/admin/${id}`);
   
   if (!isNumber(id)) {
-    return res.status(400).send("ID must be a number");
+    LoggerService.error("Invalid or missing id");
+    return res.status(400).send("Invalid or missing id");
   }
 
-  const product = products.find(p => p.id === id);
-  if (!product) {
-    return res.status(404).send("Product not found");
+  try {
+    const success = setProductUnavailable(id);
+    res.status(200).json({ success });
+  } catch (error) {
+    LoggerService.error("Database error: " + error);
+    res.status(500).json({ error: "Error while setting product unavailable." });
   }
-
-  product.status = 'UNAVAILABLE';
-  res.status(200).json(product);
 });
