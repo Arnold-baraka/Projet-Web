@@ -8,3 +8,6 @@ Movies/
 Downloads/
 Applications/
 Desktop/
+node_modules/
+dist/
+*.log
