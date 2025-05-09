@@ -1,10 +1,17 @@
 .DS_Store
+
+.npm/
+sqlite/
+zip/
+bzip2/
+
+
+*.zip
+*.db
+exec/
+node_modules/
+.vscode/
+.idea/
+
 # Ignore system and user directories
 .Trash/
-Music/
-Pictures/
-Library/
-Movies/
-Downloads/
-Applications/
-Desktop/
